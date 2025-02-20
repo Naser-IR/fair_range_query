@@ -3,7 +3,7 @@ In this GitHub repository, you will find some code.Download all the files in the
 
 All you need to do is install the required Python libraries and then run gui.py.
 
-##Before running the GUI, install these Python dependencies:
+## Before running the GUI, install these Python dependencies:
 python3 -m pip install pandas customtkinter
 
 Then run:
