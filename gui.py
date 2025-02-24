@@ -3,29 +3,27 @@ import subprocess
 import os
 
 # Set theme
-ctk.set_appearance_mode("light")  # Can be "dark"
-ctk.set_default_color_theme("blue")  # Blue theme
+ctk.set_appearance_mode("light")
+ctk.set_default_color_theme("blue")
 
 # Create main window
 root = ctk.CTk()
-root.geometry("400x600")
-root.title("Range Fairness")
+root.geometry("400x300")
+root.title("Range Fairness Query")
 
 # Function to run C++ program and then the Python script
 def run_cpp_and_python():
-    min_x = min_x_entry.get()
-    min_y = min_x_entry.get()
-    max_x = max_x_entry.get()
-    max_y = max_x_entry.get()
+    min_age = min_age_entry.get()
+    max_age = max_age_entry.get()
     epsilon = "0"
 
-    if not all([min_x, max_x]):
+    if not all([min_age, max_age]):
         result_label.configure(text="Error: Please enter all values", text_color="red")
         return
 
     try:
         # Run C++ executable with user input values
-        cpp_command = ["./2d_unweighted_pip_final", min_x, min_y, max_x, max_y, epsilon]
+        cpp_command = ["./2d_unweighted_pip_final", min_age, min_age, max_age, max_age, epsilon]
         cpp_process = subprocess.run(cpp_command, capture_output=True, text=True)
         
         # Display C++ output
@@ -47,33 +45,42 @@ def run_cpp_and_python():
         result_label.configure(text=f"Execution Error: {str(e)}", text_color="red")
 
 # Create main frame
-frame = ctk.CTkFrame(root)
+frame = ctk.CTkFrame(root, fg_color="#F0F0F0", corner_radius=10)
 frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-# Title label
-title_label = ctk.CTkLabel(frame, text="Range Fairness", font=("Arial", 24, "bold"))
-title_label.pack(pady=10)
+# Title label aligned to the left
+title_label = ctk.CTkLabel(frame, text="SELECT Name\nFROM compass", font=("Arial", 18, "bold"), anchor="w", justify="left")
+title_label.pack(pady=5, padx=10, anchor="w")
 
-# Create input fields
-input_fields = [
-    ("Min Value 1", "18.0"), 
-    ("Max Value 1", "23.0"), 
-]
+# WHERE statement with inputs in one line
+where_frame = ctk.CTkFrame(frame, fg_color="#F0F0F0")
+where_frame.pack(pady=5, padx=10, fill="x")
 
-entries = []
-for label_text, default in input_fields:
-    label = ctk.CTkLabel(frame, text=label_text, font=("Arial", 16))
-    label.pack(pady=5)
-    entry = ctk.CTkEntry(frame, placeholder_text=default, font=("Arial", 14))
-    entry.pack(pady=5)
-    entries.append(entry)
+where_text = ctk.CTkLabel(where_frame, text="WHERE", font=("Arial", 18, "bold"))
+where_text.pack(side="left", padx=5)
 
-# Assign entries to variables
-min_x_entry, max_x_entry = entries
+min_age_entry = ctk.CTkEntry(where_frame, placeholder_text="18.0", font=("Arial", 18), width=60, corner_radius=10)
+min_age_entry.pack(side="left", padx=5)
+
+where_text_2 = ctk.CTkLabel(where_frame, text="≤ Age", font=("Arial", 18))
+where_text_2.pack(side="left")
+
+# Second line for AND condition
+and_frame = ctk.CTkFrame(frame, fg_color="#F0F0F0")
+and_frame.pack(pady=5, padx=10, fill="x")
+
+and_text = ctk.CTkLabel(and_frame, text="AND Age ≤", font=("Arial", 18))
+and_text.pack(side="left")
+
+max_age_entry = ctk.CTkEntry(and_frame, placeholder_text="23.0", font=("Arial", 18), width=60, corner_radius=10)
+max_age_entry.pack(side="left", padx=5)
 
 # Calculate Button
-calculate_button = ctk.CTkButton(frame, text="Calculate Fair Range", font=("Arial", 16, "bold"),
-                                 corner_radius=30, height=40, command=run_cpp_and_python)
+calculate_button = ctk.CTkButton(
+    frame, text="Run Query", font=("Arial", 16, "bold"),
+    corner_radius=10, height=40, fg_color="#337AB7", text_color="white",
+    hover_color="#285F8F", command=run_cpp_and_python
+)
 calculate_button.pack(pady=15)
 
 # Output Label
@@ -81,153 +88,13 @@ result_label = ctk.CTkLabel(frame, text="", font=("Arial", 14), wraplength=300)
 result_label.pack(pady=10)
 
 # Back Button
-back_button = ctk.CTkButton(frame, text="Back", font=("Arial", 14), corner_radius=30, height=35)
+back_button = ctk.CTkButton(
+    frame, text="Back", font=("Arial", 14),
+    corner_radius=10, height=35, fg_color="#337AB7", text_color="white",
+    hover_color="#285F8F"
+)
 back_button.pack(pady=10)
 
 # Run the GUI
 root.mainloop()
 
-
-# import customtkinter as ctk
-# import subprocess
-
-# # Set theme
-# ctk.set_appearance_mode("light")  # Can be "dark"
-# ctk.set_default_color_theme("blue")  # Blue theme
-
-# # Create main window
-# root = ctk.CTk()
-# root.geometry("400x600")
-# root.title("Range Fairness")
-
-# # Function to run C++ program
-# def run_cpp_program():
-#     min_x = min_x_entry.get()
-#     min_y = min_x_entry.get()
-#     max_x = max_x_entry.get()
-#     max_y = max_x_entry.get()
-#     # epsilon = epsilon_entry.get()
-#     epsilon = "0"
-
-#     if not all([min_x, max_x]):
-#         result_label.configure(text="Error: Please enter all values", text_color="red")
-#         return
-
-#     try:
-#         # Run C++ executable with user input values
-#         command = ["./2d_unweighted_pip_final", min_x, min_y, max_x, max_y, epsilon]
-#         process = subprocess.run(command, capture_output=True, text=True)
-        
-#         # Display output
-#         result_label.configure(text=process.stdout, text_color="black")
-
-#     except Exception as e:
-#         result_label.configure(text=f"Execution Error: {str(e)}", text_color="red")
-
-# # Create main frame
-# frame = ctk.CTkFrame(root)
-# frame.pack(pady=20, padx=20, fill="both", expand=True)
-
-# # Title label
-# title_label = ctk.CTkLabel(frame, text="Range Fairness", font=("Arial", 24, "bold"))
-# title_label.pack(pady=10)
-
-# # Create input fields
-# input_fields = [
-#     ("Min Value 1", "18.0"), 
-#     # ("Min Value 2", "18.0"), 
-#     ("Max Value 1", "23.0"), 
-#     # ("Max Value 2", "23.0"), 
-#     # ("Epsilon Value", "0.1")
-# ]
-
-# entries = []
-# for label_text, default in input_fields:
-#     label = ctk.CTkLabel(frame, text=label_text, font=("Arial", 16))
-#     label.pack(pady=5)
-#     entry = ctk.CTkEntry(frame, placeholder_text=default, font=("Arial", 14))
-#     entry.pack(pady=5)
-#     entries.append(entry)
-
-# # Assign entries to variables
-# min_x_entry, max_x_entry = entries
-
-# # Calculate Button
-# calculate_button = ctk.CTkButton(frame, text="Calculate Fair Range", font=("Arial", 16, "bold"),
-#                                  corner_radius=30, height=40, command=run_cpp_program)
-# calculate_button.pack(pady=15)
-
-# # Output Label
-# result_label = ctk.CTkLabel(frame, text="", font=("Arial", 14), wraplength=300)
-# result_label.pack(pady=10)
-
-# # Back Button
-# back_button = ctk.CTkButton(frame, text="Back", font=("Arial", 14), corner_radius=30, height=35)
-# back_button.pack(pady=10)
-
-# # Run the GUI
-# root.mainloop()
-
-
-# import tkinter as tk
-# from tkinter import messagebox
-# import subprocess
-
-# def run_cpp_program():
-#     """Runs the C++ fairness optimization program with user inputs."""
-#     min_x = min_x_entry.get()
-#     min_y = min_y_entry.get()
-#     max_x = max_x_entry.get()
-#     max_y = max_y_entry.get()
-
-#     if not (min_x and min_y and max_x and max_y):
-#         messagebox.showerror("Input Error", "Please enter all min/max values.")
-#         return
-
-#     try:
-#         # Run the C++ executable with user input values
-#         command = ["./2d_unweighted_pip_final", min_x, min_y, max_x, max_y]  # Change if needed
-#         process = subprocess.run(command, capture_output=True, text=True)
-
-#         # Display output in the text area
-#         output_text.delete("1.0", tk.END)
-#         output_text.insert(tk.END, process.stdout)
-
-#         # Show errors (if any)
-#         if process.stderr:
-#             messagebox.showwarning("Warning", process.stderr)
-
-#     except Exception as e:
-#         messagebox.showerror("Execution Error", f"Failed to run C++ program: {str(e)}")
-
-# # GUI Setup
-# root = tk.Tk()
-# root.title("Fairness Algorithm GUI")
-# root.geometry("500x400")
-
-# # Input Labels & Entry Fields
-# tk.Label(root, text="Min X:").grid(row=0, column=0)
-# tk.Label(root, text="Min Y:").grid(row=1, column=0)
-# tk.Label(root, text="Max X:").grid(row=2, column=0)
-# tk.Label(root, text="Max Y:").grid(row=3, column=0)
-
-# min_x_entry = tk.Entry(root)
-# min_y_entry = tk.Entry(root)
-# max_x_entry = tk.Entry(root)
-# max_y_entry = tk.Entry(root)
-
-# min_x_entry.grid(row=0, column=1)
-# min_y_entry.grid(row=1, column=1)
-# max_x_entry.grid(row=2, column=1)
-# max_y_entry.grid(row=3, column=1)
-
-# # Run Button
-# run_button = tk.Button(root, text="Run Fairness Algorithm", command=run_cpp_program)
-# run_button.grid(row=4, column=0, columnspan=2, pady=10)
-
-# # Output Box
-# output_text = tk.Text(root, height=10, width=60)
-# output_text.grid(row=5, column=0, columnspan=2)
-
-# # Start GUI Loop
-# root.mainloop()

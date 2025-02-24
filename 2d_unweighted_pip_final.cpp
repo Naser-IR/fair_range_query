@@ -1203,7 +1203,7 @@ void buildAndComputeShrinkingFairness(vector<Point> *pointsD1Increasing, vector<
     computeShrinkingFairness(ipsd1Descending, ipsd1Ascending, d1, d2, pointsD2Increasing, pointsD2Decreasing, maximumPointStartingRange[d2], minimumPointStartingRange[d2], needsBlues, improvementNeeded, pointsInInitialRange, maxSimilarity, maxRange, epsilon);
 }
 
-void runSearch(vector<Point> *points, double *minimumPointStartingRange, double *maximumPointStartingRange) {
+void runSearch(vector<Point> *points, double *minimumPointStartingRange, double *maximumPointStartingRange, chrono::time_point<chrono::high_resolution_clock> start) {
     vector<Point> *ascending0 = new vector<Point>();
     vector<Point> *descending0 = new vector<Point>();
     vector<Point> *ascending1 = new vector<Point>();
@@ -1240,12 +1240,12 @@ void runSearch(vector<Point> *points, double *minimumPointStartingRange, double 
     // cout << "second blue count: " <<  bluesInRange << endl;
 
     bool needsBlues = bluesInRange < redsInRange;
-    int epsilon = ceil(0.025*(redsInRange+bluesInRange));
-    // int epsilon = 0;
-    int improvementNeeded = abs(redsInRange-0.2*bluesInRange) - epsilon;
-    cout << "Epsilon: " << epsilon << endl;
-    cout << "Initial disparity " << abs(redsInRange - bluesInRange) << endl;
-    cout << "Initial range, {" << minimumPointStartingRange[0] << ", "<< minimumPointStartingRange[1] << "}, {" << maximumPointStartingRange[0] << ", " << maximumPointStartingRange[1] <<  "}" << endl;
+    // int epsilon = ceil(0.025*(redsInRange+bluesInRange));
+    int epsilon = 0;
+    int improvementNeeded = abs(redsInRange- 0.25*bluesInRange) - epsilon;
+    // cout << "Epsilon: " << epsilon << endl;
+    // cout << "Initial disparity " << abs(redsInRange - bluesInRange) << endl;
+    // cout << "Initial range, {" << minimumPointStartingRange[0] << ", "<< minimumPointStartingRange[1] << "}, {" << maximumPointStartingRange[0] << ", " << maximumPointStartingRange[1] <<  "}" << endl;
 
     if (improvementNeeded <= 0) {
         cout << "Initial range is already fair" << endl;
@@ -1272,11 +1272,14 @@ void runSearch(vector<Point> *points, double *minimumPointStartingRange, double 
 
     // cout << "third red count: " << redInRange << endl;
     // cout << "third blue count: " <<  blueInRange << endl;
+    chrono::time_point<chrono::high_resolution_clock> end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end- start).count();
+    cout << "Duration: " << duration << endl;
     frange[0] = max(range[0][0], range[0][1]);
     frange[1] = min(range[1][0],range[1][1]);
-    cout << "Final disparity " << abs(blueInRange - redInRange) << endl;
+    // cout << "Final disparity " << abs(blueInRange - redInRange) << endl;
     cout << "Similarity: " << similarity << endl;
-    cout << "{" << max(range[0][0], range[0][1]) << "}, {" << min(range[1][0],range[1][1]) << "}" << endl;
+    cout << "(" << max(range[0][0], range[0][1]) << "," << min(range[1][0],range[1][1]) << ")" << endl;
     cout << endl;
 }
 
@@ -1442,20 +1445,21 @@ int main(int argc, char* argv[]) {
     maximum[0] = atof(argv[3]);
     maximum[1] = atof(argv[4]);
 
-    // Debugging: Print received values
-    cout << "Received min: (" << minimum[0] << ", " << minimum[1] << ")\n";
-    cout << "Received max: (" << maximum[0] << ", " << maximum[1] << ")\n";
+    // // Debugging: Print received values
+    // cout << "Received min: (" << minimum[0] << ", " << minimum[1] << ")\n";
+    // cout << "Received max: (" << maximum[0] << ", " << maximum[1] << ")\n";
 
-    string filename = "/Users/naser-ir/Desktop/compasdataset/sorted.csv";  // Change this to the actual data file
+    string filename = "./sorted.csv";  // Change this to the actual data file
     int redInRange = 0, blueInRange = 0;
     
     // Call existing readPoints function
     vector<Point> *points = readPoints(filename, minimum, maximum, redInRange, blueInRange);
 
-    cout << "initial red count: " << redInRange << endl;
-    cout << "initial blue count: " <<  blueInRange << endl;
+    // cout << "initial red count: " << redInRange << endl;
+    // cout << "initial blue count: " <<  blueInRange << endl;
     // Call fairness computation
-    runSearch(points, minimum, maximum);
+    chrono::time_point<chrono::high_resolution_clock> start = chrono::high_resolution_clock::now();
+    runSearch(points, minimum, maximum,start);
     
     // delete[] minimum;
     // delete[] maximum;
@@ -1472,7 +1476,7 @@ int main(int argc, char* argv[]) {
         outputFile << frange[1];
         outputFile << "\n";
         outputFile.close(); // Close the file
-        std::cout << "Data successfully written to output.txt\n";
+        // std::cout << "Data successfully written to output.txt\n";
     } else {
         std::cerr << "Error: Unable to open file for writing\n";
     }
